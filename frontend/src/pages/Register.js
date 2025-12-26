@@ -1,36 +1,43 @@
 import React, { useState } from "react";
 import API from "../services/api";
 
-const Login = () => {
+const Register = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/login", {
+      await API.post("/auth/register", {
+        name,
         email,
         password
       });
 
-      // Save token
-      localStorage.setItem("token", res.data.token);
-
-      window.location.href = "/dashboard";
-
-      console.log(res.data);
+      alert("Registration successful! Please login.");
+      window.location.href = "/";
 
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      alert(error.response?.data?.message || "Registration failed");
     }
   };
 
   return (
     <div style={{ padding: "40px" }}>
-      <h2>Login</h2>
+      <h2>Register</h2>
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleRegister}>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <br /><br />
+
         <input
           type="email"
           placeholder="Email"
@@ -49,14 +56,10 @@ const Login = () => {
         />
         <br /><br />
 
-        <button type="submit">Login</button>
-        <p>
-  Don’t have an account? <a href="/register">Register</a>
-</p>
-
+        <button type="submit">Register</button>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Register;
