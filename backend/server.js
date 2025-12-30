@@ -32,3 +32,4 @@ app.listen(PORT, () => {
 });
 
 app.use("/api/doctor", require("./routes/doctorRoutes"));
+app.use("/api/availability", require("./routes/availabilityRoutes"));
