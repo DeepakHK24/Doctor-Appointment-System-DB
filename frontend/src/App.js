@@ -1,57 +1,24 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ProtectedRoute from "./components/ProtectedRoute";
-import ApplyDoctor from "./pages/ApplyDoctor";
-
-
-const Dashboard = () => {
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-  };
-
-  return (
-    <div>
-      <a href="/apply-doctor">Apply as Doctor</a>
-
-      <h2>Welcome to Dashboard (Protected)</h2>
-      <button onClick={handleLogout}>Logout</button>
-    </div>
-  );
-};
-
+import logo from './logo.svg';
+import './App.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-            
-          }
-          
-        />
-        <Route
-  path="/apply-doctor"
-  element={
-    <ProtectedRoute>
-      <ApplyDoctor />
-    </ProtectedRoute>
-  }
-/>
-
-      </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
   );
 }
 
