@@ -8,15 +8,15 @@ const availabilitySchema = new mongoose.Schema(
       required: true
     },
     date: {
-      type: String, // YYYY-MM-DD
+      type: String,
       required: true
     },
     startTime: {
-      type: String, // HH:mm
+      type: String,
       required: true
     },
     endTime: {
-      type: String, // HH:mm
+      type: String,
       required: true
     },
     isBooked: {
