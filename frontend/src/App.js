@@ -1,61 +1,67 @@
-import { useState } from "react";
-import "./App.css";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+/* Auth Pages */
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+/* Dashboards */
+import PatientDashboard from "./pages/PatientDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+
+/* Route Guards */
+import ProtectedRoute from "./components/ProtectedRoute";
+import RoleRoute from "./components/RoleRoute";
 
 function App() {
-  const [tab, setTab] = useState("login");
-
   return (
-    <div className="container">
-      <h1>Doctor Appointment System</h1>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* ---- TAB BUTTONS ---- */}
-      <div className="tabs">
-        <button className={tab==="login" ? "active" : ""} onClick={()=>setTab("login")}>Login</button>
-        <button className={tab==="register" ? "active" : ""} onClick={()=>setTab("register")}>Register</button>
-        <button className={tab==="appointments" ? "active" : ""} onClick={()=>setTab("appointments")}>Appointments</button>
-      </div>
+        {/* Patient */}
+        <Route
+          path="/patient"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["patient"]}>
+                <PatientDashboard />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ---- TAB CONTENT ---- */}
-      <div className="content">
-        {tab === "login" && <Login />}
-        {tab === "register" && <Register />}
-        {tab === "appointments" && <Appointments />}
-      </div>
-    </div>
-  );
-}
+        {/* Doctor */}
+        <Route
+          path="/doctor"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["doctor"]}>
+                <DoctorDashboard />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-/* ------- COMPONENTS ------- */
+        {/* Admin */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-function Login() {
-  return (
-    <form className="form-box">
-      <h2>Login</h2>
-      <input type="email" placeholder="Email" required/>
-      <input type="password" placeholder="Password" required/>
-      <button>Login</button>
-    </form>
-  );
-}
-
-function Register() {
-  return (
-    <form className="form-box">
-      <h2>Register</h2>
-      <input type="text" placeholder="Name" required/>
-      <input type="email" placeholder="Email" required/>
-      <input type="password" placeholder="Password" required/>
-      <button>Sign Up</button>
-    </form>
-  );
-}
-
-function Appointments() {
-  return (
-    <div className="form-box">
-      <h2>Your Appointments</h2>
-      <p>No appointments booked yet.</p>
-    </div>
+        {/* Default */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 }
 
