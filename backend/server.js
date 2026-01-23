@@ -2,40 +2,39 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const startAppointmentReminder = require("./utils/appointmentReminder");
-
 
 dotenv.config();
 
 const app = express();
-
-// MIDDLEWARE
 app.use(express.json());
-app.use(cors());
 
 // ROUTES
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/doctor", require("./routes/doctorRoutes"));
+app.use("/api/availability", require("./routes/availabilityRoutes"));
+app.use("/api/appointment", require("./routes/appointmentRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/notification", require("./routes/notificationRoutes"));
 
-// TEST ROUTE
-app.get("/", (req, res) => {
-  res.send("Doctor Appointment Backend is running");
-});
+// ERROR HANDLER (MUST BE LAST)
+app.use(errorHandler);
 
-// DATABASE CONNECTION
+// DB CONNECTION
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log(err));
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 
+// SERVER
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-startAppointmentReminder();
-
 app.use("/api/doctor", require("./routes/doctorRoutes"));
 app.use("/api/appointment", require("./routes/appointmentRoutes"));
 app.use("/api/notification", require("./routes/notificationRoutes"));
-app.use("/api/dashboard", require("./routes/dashboardRoutes"));
