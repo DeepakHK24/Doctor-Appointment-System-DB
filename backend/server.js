@@ -1,42 +1,27 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const cors = require("cors");
-const errorHandler = require("./middleware/errorMiddleware");
-
+const mongoose = require("mongoose");
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-// ROUTES
+// ================= ROUTES =================
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/doctor", require("./routes/doctorRoutes"));
-app.use("/api/availability", require("./routes/availabilityRoutes"));
 app.use("/api/appointment", require("./routes/appointmentRoutes"));
-app.use("/api/admin", require("./routes/adminRoutes"));
-app.use("/api/notification", require("./routes/notificationRoutes"));
+app.use("/api/history", require("./routes/appointmentHistoryRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 
-// ERROR HANDLER (MUST BE LAST)
-app.use(errorHandler);
-
-// DB CONNECTION
+// ================= DATABASE =================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  .catch(err => console.error("❌ MongoDB connection error:", err));
 
-// SERVER
+// ================= SERVER =================
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-app.use("/api/doctor", require("./routes/doctorRoutes"));
-app.use("/api/appointment", require("./routes/appointmentRoutes"));
-app.use("/api/notification", require("./routes/notificationRoutes"));
