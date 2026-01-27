@@ -1,16 +1,18 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-/* Auth Pages */
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-/* Dashboards */
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
-/* Route Guards */
+import DoctorList from "./pages/DoctorList";
+import DoctorAvailability from "./pages/DoctorAvailability";
+import MyAppointments from "./pages/MyAppointments";
+import DoctorAppointments from "./pages/DoctorAppointments";
+import AdminDoctors from "./pages/AdminDoctors";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 
@@ -18,7 +20,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+
+        {/* Public */}
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
@@ -29,6 +33,36 @@ function App() {
             <ProtectedRoute>
               <RoleRoute allowedRoles={["patient"]}>
                 <PatientDashboard />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctors"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["patient"]}>
+                <DoctorList />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor/:id"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["patient"]}>
+                <DoctorAvailability />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-appointments"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["patient"]}>
+                <MyAppointments />
               </RoleRoute>
             </ProtectedRoute>
           }
@@ -45,6 +79,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/doctor/appointments"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["doctor"]}>
+                <DoctorAppointments />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin */}
         <Route
@@ -56,13 +100,31 @@ function App() {
               </RoleRoute>
             </ProtectedRoute>
           }
+          
         />
+        <Route
+          path="/admin/doctors"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["admin"]}>
+                <AdminDoctors />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+<Route
+  path="/doctor/:doctorId/availability"
+  element={<DoctorAvailability />}
+/>
+<Route
+  path="/patient/appointments"
+  element={<MyAppointments />}
+/>
 
-        {/* Default */}
-        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+

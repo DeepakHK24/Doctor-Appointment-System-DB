@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
+import { getDoctors } from "../services/api";
+
+
+<Link to="/patient/appointments">My Appointments</Link>
+
 import {
   getPatientAppointments,
   cancelAppointment,
 } from "../services/api";
 
+
+
 const PatientDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
 
   const fetchAppointments = async () => {
     try {

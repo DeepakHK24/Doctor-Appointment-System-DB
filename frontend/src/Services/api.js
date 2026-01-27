@@ -1,71 +1,93 @@
 import axios from "axios";
 
-/**
- * Axios instance
- */
-const API = axios.create({
+/* ---------------------------
+   AXIOS INSTANCE
+---------------------------- */
+
+const api = axios.create({
   baseURL: "http://localhost:5000/api",
 });
 
-/**
- * Attach JWT token to every request
- */
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
-});
+/* ---------------------------
+   ADD TOKEN TO EVERY REQUEST
+---------------------------- */
 
-/* ================= AUTH ================= */
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-export const registerUser = (data) =>
-  API.post("/auth/register", data);
+/* ---------------------------
+   AUTH APIs
+---------------------------- */
 
 export const loginUser = (data) =>
-  API.post("/auth/login", data);
+  api.post("/auth/login", data);
 
-/* ================= PATIENT ================= */
+export const registerUser = (data) =>
+  api.post("/auth/register", data);
 
-export const getPatientAppointments = () =>
-  API.get("/appointment/patient");
+/* ---------------------------
+   PATIENT APIs
+---------------------------- */
 
+// Get all approved doctors
+export const getDoctors = () =>
+  api.get("/doctor/approved");
+
+// Get doctor availability
+export const getDoctorAvailability = (doctorId) =>
+  api.get(`/availability/doctor/${doctorId}`);
+
+
+// Book appointment
 export const bookAppointment = (data) =>
-  API.post("/appointment/book", data);
+  api.post("/appointment/book", data);
 
-export const cancelAppointment = (id) =>
-  API.post("/appointment/cancel", { appointmentId: id });
+// Patient appointments
+export const getPatientAppointments = () =>
+  api.get("/appointment/patient");
 
-/* ================= DOCTOR ================= */
+// Cancel appointment
+export const cancelAppointment = (appointmentId) =>
+  api.post("/appointment/cancel", { appointmentId });
 
-export const getDoctorAppointments = () =>
-  API.get("/appointment/doctor");
+/* ---------------------------
+   DOCTOR APIs
+---------------------------- */
 
-export const updateAppointmentStatus = (id, status) =>
-  API.post("/appointment/update-status", {
-    appointmentId: id,
-    status,
-  });
-
+// Doctor availability
 export const addAvailability = (data) =>
-  API.post("/availability/add", data);
+  api.post("/availability/add", data);
 
 export const getMyAvailability = () =>
-  API.get("/availability/my");
+  api.get("/availability/my");
 
-/* ================= ADMIN ================= */
+// Doctor appointments
+export const getDoctorAppointments = () =>
+  api.get("/appointment/doctor");
 
-export const getAdminStats = () =>
-  API.get("/admin/stats");
+export const updateAppointmentStatus = (data) =>
+  api.post("/appointment/update-status", data);
+
+/* ---------------------------
+   ADMIN APIs
+---------------------------- */
 
 export const getDoctorApplications = () =>
-  API.get("/doctor/applications");
+  api.get("/doctor/applications");
 
-export const updateDoctorStatus = (id, status) =>
-  API.post("/doctor/update-status", {
-    doctorId: id,
-    status,
-  });
+export const updateDoctorStatus = (data) =>
+  api.post("/doctor/update-status", data);
 
-export default API;
+export const getAdminStats = () =>
+  api.get("/admin/stats");
+
+
+export default api;
