@@ -1,32 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDoctorAvailability, bookAppointment } from "../services/api";
+import { getDoctorAvailability, bookAppointment } from "../api/appointmentApi";
 
 export default function DoctorAvailability() {
-  const { doctorId } = useParams();
+  const { doctorId } = useParams();        // doctor id from URL
   const navigate = useNavigate();
+
   const [slots, setSlots] = useState([]);
 
+  // 🔹 FETCH AVAILABILITY WHEN PAGE LOADS
   useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await getDoctorAvailability(doctorId);
+        setSlots(res.data);
+      } catch (error) {
+        console.error("Error fetching availability", error);
+      }
+    };
+
     fetchAvailability();
-  }, []);
+  }, [doctorId]);
 
-  const fetchAvailability = async () => {
+  // 🔹 BOOK APPOINTMENT FUNCTION
+  const handleBookAppointment = async (availabilityId) => {
     try {
-      const res = await getDoctorAvailability(doctorId);
-      setSlots(res.data);
-    } catch (err) {
-      alert("Failed to load availability");
-    }
-  };
+      // ✅ THIS IS EXACTLY WHERE YOUR LINE GOES
+      await bookAppointment({ doctorId, availabilityId });
 
-  const handleBook = async (slotId) => {
-    try {
-      await bookAppointment({ doctorId, slotId });
-      alert("Appointment booked");
-      navigate("/patient/appointments");
-    } catch (err) {
-      alert("Booking failed");
+      alert("Appointment booked successfully");
+      navigate("/patient"); // go back to patient dashboard
+    } catch (error) {
+      alert("Failed to book appointment");
     }
   };
 
@@ -37,9 +42,17 @@ export default function DoctorAvailability() {
       {slots.length === 0 && <p>No slots available</p>}
 
       {slots.map((slot) => (
-        <div key={slot._id}>
-          <span>{slot.date} - {slot.time}</span>
-          <button onClick={() => handleBook(slot._id)}>Book</button>
+        <div key={slot._id} style={{ marginBottom: "10px" }}>
+          <span>
+            {slot.date} - {slot.time}
+          </span>
+
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => handleBookAppointment(slot._id)}
+          >
+            Book Appointment
+          </button>
         </div>
       ))}
     </div>

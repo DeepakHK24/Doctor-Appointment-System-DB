@@ -1,89 +1,38 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { getDoctors } from "../services/api";
+import React, { useEffect, useState } from "react";
+import { getPatientDashboard } from "../services/api";
 
-
-<Link to="/patient/appointments">My Appointments</Link>
-
-import {
-  getPatientAppointments,
-  cancelAppointment,
-} from "../services/api";
-
-
-
-const PatientDashboard = () => {
+export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-
-  const fetchAppointments = async () => {
-    try {
-      const { data } = await getPatientAppointments();
-      setAppointments(data);
-    } catch (err) {
-      setError("Failed to load appointments");
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
-    fetchAppointments();
+    fetchDashboard();
   }, []);
 
-  const handleCancel = async (id) => {
+  const fetchDashboard = async () => {
     try {
-      await cancelAppointment(id);
-      fetchAppointments(); // refresh list
+      const res = await getPatientDashboard();
+      setAppointments(res.data.appointments || []);
     } catch (err) {
-      alert("Unable to cancel appointment");
+      console.error(err);
     }
   };
 
-  if (loading) return <p>Loading appointments...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
-    <div className="dashboard">
+    <div>
       <h2>Patient Dashboard</h2>
 
       {appointments.length === 0 ? (
-        <p>No appointments booked</p>
+        <p>No appointments found</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Doctor</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map((appt) => (
-              <tr key={appt._id}>
-                <td>{appt.doctor?.name}</td>
-                <td>{appt.date}</td>
-                <td>{appt.time}</td>
-                <td>{appt.status}</td>
-                <td>
-                  {appt.status === "pending" && (
-                    <button
-                      onClick={() => handleCancel(appt._id)}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        appointments.map((a) => (
+          <div key={a._id} style={{ border: "1px solid #ccc", margin: "10px" }}>
+            <p>Doctor: {a.doctor?.name}</p>
+            <p>Date: {a.date}</p>
+            <p>Time: {a.time}</p>
+            <p>Status: {a.status}</p>
+          </div>
+        ))
       )}
     </div>
   );
-};
-
-export default PatientDashboard;
+}

@@ -1,130 +1,69 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getDoctorAvailability,
+  bookAppointment,
+} from "../services/api";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+export default function DoctorAvailability() {
+  const { doctorId } = useParams();
+  const navigate = useNavigate();
 
-import PatientDashboard from "./pages/PatientDashboard";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-import DoctorList from "./pages/DoctorList";
-import DoctorAvailability from "./pages/DoctorAvailability";
-import MyAppointments from "./pages/MyAppointments";
-import DoctorAppointments from "./pages/DoctorAppointments";
-import AdminDoctors from "./pages/AdminDoctors";
+  // 🔹 Fetch availability when page loads
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await getDoctorAvailability(doctorId);
+        setSlots(res.data);
+      } catch (err) {
+        alert("Failed to load availability");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-import ProtectedRoute from "./components/ProtectedRoute";
-import RoleRoute from "./components/RoleRoute";
+    fetchAvailability();
+  }, [doctorId]);
 
-function App() {
+  // 🔹 Book appointment (BUTTON CLICK)
+  const handleBook = async (availabilityId) => {
+    try {
+      await bookAppointment({
+        doctorId,
+        availabilityId,
+      });
+
+      alert("Appointment booked successfully");
+      navigate("/patient");
+    } catch (err) {
+      alert("Booking failed");
+    }
+  };
+
+  if (loading) return <h3>Loading...</h3>;
+
   return (
-    <Router>
-      <Routes>
+    <div>
+      <h2>Doctor Availability</h2>
 
-        {/* Public */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {slots.length === 0 && <p>No slots available</p>}
 
-        {/* Patient */}
-        <Route
-          path="/patient"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["patient"]}>
-                <PatientDashboard />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/doctors"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["patient"]}>
-                <DoctorList />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/doctor/:id"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["patient"]}>
-                <DoctorAvailability />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-appointments"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["patient"]}>
-                <MyAppointments />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Doctor */}
-        <Route
-          path="/doctor"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["doctor"]}>
-                <DoctorDashboard />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/doctor/appointments"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["doctor"]}>
-                <DoctorAppointments />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["admin"]}>
-                <AdminDashboard />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-          
-        />
-        <Route
-          path="/admin/doctors"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowedRoles={["admin"]}>
-                <AdminDoctors />
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-<Route
-  path="/doctor/:doctorId/availability"
-  element={<DoctorAvailability />}
-/>
-<Route
-  path="/patient/appointments"
-  element={<MyAppointments />}
-/>
-
-      </Routes>
-    </Router>
+      {slots.map((slot) => (
+        <div key={slot._id} style={{ marginBottom: "10px" }}>
+          <span>
+            {slot.date} - {slot.time}
+          </span>
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => handleBook(slot._id)}
+          >
+            Book Appointment
+          </button>
+        </div>
+      ))}
+    </div>
   );
 }
-
-export default App;
-

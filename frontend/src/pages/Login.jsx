@@ -1,67 +1,53 @@
 import React, { useState } from "react";
-import { loginUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/authApi";
 
-const Login = () => {
-  const navigate = useNavigate();
-
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
+      // 👇 THIS IS WHERE YOUR CODE GOES
       const res = await loginUser({ email, password });
 
-      const { token, user } = res.data;
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // store auth data
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // role-based redirect
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else if (user.role === "doctor") {
-        navigate("/doctor");
-      } else {
-        navigate("/patient");
-      }
-    } catch (err) {
-      setError("Invalid email or password");
+      // Role-based redirect
+      const role = res.data.user.role;
+      if (role === "patient") navigate("/patient");
+      else if (role === "doctor") navigate("/doctor");
+      else if (role === "admin") navigate("/admin");
+    } catch (error) {
+      alert("Invalid login credentials");
     }
   };
 
   return (
-    <div className="auth-container">
+    <form onSubmit={handleLogin}>
       <h2>Login</h2>
 
-      {error && <p className="error">{error}</p>}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button type="submit">Login</button>
-      </form>
-    </div>
+      <button type="submit">Login</button>
+    </form>
   );
-};
-
-export default Login;
+}
