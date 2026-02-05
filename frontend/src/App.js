@@ -1,61 +1,30 @@
-import { useState } from "react";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
+import MyAppointments from "./pages/MyAppointments";
+import Navbar from "./components/Navbar";
 
 function App() {
-  const [tab, setTab] = useState("login");
-
   return (
-    <div className="container">
-      <h1>Doctor Appointment System</h1>
+    <BrowserRouter>
+      <Navbar />
 
-      {/* ---- TAB BUTTONS ---- */}
-      <div className="tabs">
-        <button className={tab==="login" ? "active" : ""} onClick={()=>setTab("login")}>Login</button>
-        <button className={tab==="register" ? "active" : ""} onClick={()=>setTab("register")}>Register</button>
-        <button className={tab==="appointments" ? "active" : ""} onClick={()=>setTab("appointments")}>Appointments</button>
-      </div>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* ---- TAB CONTENT ---- */}
-      <div className="content">
-        {tab === "login" && <Login />}
-        {tab === "register" && <Register />}
-        {tab === "appointments" && <Appointments />}
-      </div>
-    </div>
-  );
-}
+        {/* DASHBOARDS */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/doctor" element={<DoctorDashboard />} />
+        <Route path="/patient" element={<PatientDashboard />} />
 
-/* ------- COMPONENTS ------- */
-
-function Login() {
-  return (
-    <form className="form-box">
-      <h2>Login</h2>
-      <input type="email" placeholder="Email" required/>
-      <input type="password" placeholder="Password" required/>
-      <button>Login</button>
-    </form>
-  );
-}
-
-function Register() {
-  return (
-    <form className="form-box">
-      <h2>Register</h2>
-      <input type="text" placeholder="Name" required/>
-      <input type="email" placeholder="Email" required/>
-      <input type="password" placeholder="Password" required/>
-      <button>Sign Up</button>
-    </form>
-  );
-}
-
-function Appointments() {
-  return (
-    <div className="form-box">
-      <h2>Your Appointments</h2>
-      <p>No appointments booked yet.</p>
-    </div>
+        {/* APPOINTMENTS */}
+        <Route path="/my-appointments" element={<MyAppointments />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
