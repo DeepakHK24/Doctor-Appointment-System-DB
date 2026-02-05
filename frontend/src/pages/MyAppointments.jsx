@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPatientAppointments } from "../services/api";
-import {
-  getMyAppointments,
-  cancelAppointment,
-} from "../services/api";
+import { getPatientDashboard } from "../api/dashboardApi";
+import { updateAppointmentStatus } from "../api/appointmentApi";
 
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -14,21 +11,16 @@ export default function MyAppointments() {
 
   const loadAppointments = async () => {
     try {
-      const res = await getPatientAppointments();
-      setAppointments(res.data);
-    } catch (err) {
-      console.error(err);
+      const res = await getPatientDashboard();
+      setAppointments(res.data.appointments || []);
+    } catch {
+      alert("Failed to load appointments");
     }
   };
 
   const handleCancel = async (id) => {
-    try {
-      await cancelAppointment(id);
-      alert("Appointment cancelled");
-      loadAppointments();
-    } catch (err) {
-      alert("Cancel failed");
-    }
+    await updateAppointmentStatus(id, "cancelled");
+    loadAppointments();
   };
 
   return (
@@ -42,7 +34,6 @@ export default function MyAppointments() {
           <p>
             Doctor: {a.doctor?.name} <br />
             Date: {a.date} <br />
-            Time: {a.time} <br />
             Status: {a.status}
           </p>
 

@@ -1,107 +1,49 @@
 import React, { useEffect, useState } from "react";
-import {
-  getDoctorAppointments,
-  updateAppointmentStatus,
-  cancelAppointment,
-} from "../services/api";
+import { getDoctorDashboard } from "../api/dashboardApi";
+import { updateAppointmentStatus } from "../api/appointmentApi";
 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const fetchAppointments = async () => {
-    try {
-      const { data } = await getDoctorAppointments();
-      setAppointments(data);
-    } catch (err) {
-      setError("Failed to load appointments");
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
-    fetchAppointments();
+    loadData();
   }, []);
 
-  const handleStatusUpdate = async (id, status) => {
+  const loadData = async () => {
     try {
-      await updateAppointmentStatus(id, status);
-      fetchAppointments();
-    } catch (err) {
-      alert("Failed to update status");
+      const res = await getDoctorDashboard();
+      setAppointments(res.data.appointments || []);
+    } catch {
+      alert("Failed to load doctor dashboard");
     }
   };
 
-  const handleCancel = async (id) => {
-    try {
-      await cancelAppointment(id);
-      fetchAppointments();
-    } catch (err) {
-      alert("Failed to cancel appointment");
-    }
+  const handleApprove = async (id) => {
+    await updateAppointmentStatus(id, "approved");
+    loadData();
   };
-
-  if (loading) return <p>Loading appointments...</p>;
-  if (error) return <p>{error}</p>;
 
   return (
-    <div className="dashboard">
+    <div>
       <h2>Doctor Dashboard</h2>
 
-      {appointments.length === 0 ? (
-        <p>No appointments yet</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map((appt) => (
-              <tr key={appt._id}>
-                <td>{appt.patient?.name}</td>
-                <td>{appt.date}</td>
-                <td>{appt.time}</td>
-                <td>{appt.status}</td>
-                <td>
-                  {appt.status === "pending" && (
-                    <>
-                      <button
-                        onClick={() =>
-                          handleStatusUpdate(appt._id, "approved")
-                        }
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleCancel(appt._id)}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
+      {appointments.length === 0 && <p>No appointments</p>}
 
-                  {appt.status === "approved" && (
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate(appt._id, "completed")
-                      }
-                    >
-                      Mark Completed
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {appointments.map((a) => (
+        <div key={a._id} style={{ marginBottom: "10px" }}>
+          <p>
+            Patient: {a.patient?.name} <br />
+            Date: {a.date} <br />
+            Status: {a.status}
+          </p>
+
+          {a.status === "pending" && (
+            <button onClick={() => handleApprove(a._id)}>
+              Approve
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

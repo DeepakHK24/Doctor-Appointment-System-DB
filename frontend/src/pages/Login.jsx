@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 
-export default function Login() {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -11,43 +11,54 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // 👇 THIS IS WHERE YOUR CODE GOES
       const res = await loginUser({ email, password });
 
+      // save token & user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // Role-based redirect
       const role = res.data.user.role;
-      if (role === "patient") navigate("/patient");
+
+      // 🔥 ROLE BASED REDIRECT
+      if (role === "admin") navigate("/admin");
       else if (role === "doctor") navigate("/doctor");
-      else if (role === "admin") navigate("/admin");
-    } catch (error) {
-      alert("Invalid login credentials");
+      else navigate("/patient");
+
+    } catch (err) {
+      alert("Invalid credentials");
     }
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <div className="auth-box">
       <h2>Login</h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-      <button type="submit">Login</button>
-    </form>
+        <button type="submit">Login</button>
+      </form>
+
+      {/* 🔥 REGISTER LINK */}
+      <p>
+        New user? <Link to="/register">Register</Link>
+      </p>
+    </div>
   );
-}
+};
+
+export default Login;

@@ -1,38 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { getPatientDashboard } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { getPatientDashboard } from "../api/dashboardApi";
 
-export default function PatientDashboard() {
-  const [appointments, setAppointments] = useState([]);
+const PatientDashboard = () => {
+  const [dashboard, setDashboard] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchDashboard = async () => {
+      const res = await getPatientDashboard();
+      setDashboard(res.data);
+    };
     fetchDashboard();
   }, []);
 
-  const fetchDashboard = async () => {
-    try {
-      const res = await getPatientDashboard();
-      setAppointments(res.data.appointments || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  if (!dashboard) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="container">
       <h2>Patient Dashboard</h2>
+      <p>Welcome, {dashboard.user?.name}</p>
+      <p>Total Appointments: {dashboard.totalAppointments}</p>
+      <p>Upcoming: {dashboard.upcomingAppointments}</p>
 
-      {appointments.length === 0 ? (
-        <p>No appointments found</p>
-      ) : (
-        appointments.map((a) => (
-          <div key={a._id} style={{ border: "1px solid #ccc", margin: "10px" }}>
-            <p>Doctor: {a.doctor?.name}</p>
-            <p>Date: {a.date}</p>
-            <p>Time: {a.time}</p>
-            <p>Status: {a.status}</p>
-          </div>
-        ))
-      )}
+      <button onClick={() => navigate("/doctors")}>
+        Book Appointment
+      </button>
     </div>
   );
-}
+};
+
+export default PatientDashboard;

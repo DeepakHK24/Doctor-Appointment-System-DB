@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDoctorAvailability, bookAppointment } from "../api/appointmentApi";
+import { getDoctorAvailability } from "../api/availabilityApi";
+import { bookAppointment } from "../api/appointmentApi";
 
 export default function DoctorAvailability() {
   const { doctorId } = useParams();        // doctor id from URL

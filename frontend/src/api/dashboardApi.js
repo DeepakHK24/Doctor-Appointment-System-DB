@@ -1,10 +1,16 @@
-import api from "./axios";
+import axios from "./axios";
 
-export const getPatientDashboard = () =>
-  api.get("/dashboard/patient");
+/* ADMIN DASHBOARD */
+export const getAdminDashboard = () => {
+  return axios.get("/admin/dashboard");
+};
 
-export const getDoctorDashboard = () =>
-  api.get("/dashboard/doctor");
+/* DOCTOR DASHBOARD */
+export const getDoctorDashboard = () => {
+  return axios.get("/doctor/dashboard");
+};
 
-export const getAdminDashboard = () =>
-  api.get("/dashboard/admin");
+/* PATIENT DASHBOARD */
+export const getPatientDashboard = () => {
+  return axios.get("/patient/dashboard");
+};

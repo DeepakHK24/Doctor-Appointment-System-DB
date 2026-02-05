@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  getAdminStats,
-  getDoctorApplications,
-  updateDoctorStatus,
-} from "../services/api";
+import { getAdminDashboard } from "../api/dashboardApi";
+import { updateDoctorStatus } from "../api/doctorApi";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -12,15 +9,14 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const statsRes = await getAdminStats();
-      const appsRes = await getDoctorApplications();
-
-      setStats(statsRes.data);
-      setApplications(appsRes.data);
+      const res = await getAdminDashboard();
+      setStats(res.data.stats);
+      setApplications(res.data.doctorApplications);
     } catch (err) {
-      alert("Failed to load admin data");
+      alert("Failed to load admin dashboard");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -31,37 +27,34 @@ const AdminDashboard = () => {
     try {
       await updateDoctorStatus(id, status);
       fetchData();
-    } catch (err) {
+    } catch {
       alert("Action failed");
     }
   };
 
-  if (loading) return <p>Loading admin dashboard...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="dashboard">
+    <div>
       <h2>Admin Dashboard</h2>
 
-      {/* STATS */}
       {stats && (
-        <div className="stats">
+        <>
           <p>Total Users: {stats.users}</p>
           <p>Total Doctors: {stats.doctors}</p>
           <p>Total Appointments: {stats.appointments}</p>
-        </div>
+        </>
       )}
 
-      {/* DOCTOR APPLICATIONS */}
       <h3>Doctor Applications</h3>
 
       {applications.length === 0 ? (
         <p>No pending applications</p>
       ) : (
-        <table>
+        <table border="1">
           <thead>
             <tr>
               <th>Name</th>
-              <th>Email</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -70,27 +63,14 @@ const AdminDashboard = () => {
             {applications.map((doc) => (
               <tr key={doc._id}>
                 <td>{doc.name}</td>
-                <td>{doc.email}</td>
                 <td>{doc.status}</td>
                 <td>
-                  {doc.status === "pending" && (
-                    <>
-                      <button
-                        onClick={() =>
-                          handleStatusChange(doc._id, "approved")
-                        }
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleStatusChange(doc._id, "rejected")
-                        }
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
+                  <button onClick={() => handleStatusChange(doc._id, "approved")}>
+                    Approve
+                  </button>
+                  <button onClick={() => handleStatusChange(doc._id, "rejected")}>
+                    Reject
+                  </button>
                 </td>
               </tr>
             ))}

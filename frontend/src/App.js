@@ -1,69 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  getDoctorAvailability,
-  bookAppointment,
-} from "../services/api";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
+import MyAppointments from "./pages/MyAppointments";
+import Navbar from "./components/Navbar";
 
-export default function DoctorAvailability() {
-  const { doctorId } = useParams();
-  const navigate = useNavigate();
-
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // 🔹 Fetch availability when page loads
-  useEffect(() => {
-    const fetchAvailability = async () => {
-      try {
-        const res = await getDoctorAvailability(doctorId);
-        setSlots(res.data);
-      } catch (err) {
-        alert("Failed to load availability");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAvailability();
-  }, [doctorId]);
-
-  // 🔹 Book appointment (BUTTON CLICK)
-  const handleBook = async (availabilityId) => {
-    try {
-      await bookAppointment({
-        doctorId,
-        availabilityId,
-      });
-
-      alert("Appointment booked successfully");
-      navigate("/patient");
-    } catch (err) {
-      alert("Booking failed");
-    }
-  };
-
-  if (loading) return <h3>Loading...</h3>;
-
+function App() {
   return (
-    <div>
-      <h2>Doctor Availability</h2>
+    <BrowserRouter>
+      <Navbar />
 
-      {slots.length === 0 && <p>No slots available</p>}
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {slots.map((slot) => (
-        <div key={slot._id} style={{ marginBottom: "10px" }}>
-          <span>
-            {slot.date} - {slot.time}
-          </span>
-          <button
-            style={{ marginLeft: "10px" }}
-            onClick={() => handleBook(slot._id)}
-          >
-            Book Appointment
-          </button>
-        </div>
-      ))}
-    </div>
+        {/* DASHBOARDS */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/doctor" element={<DoctorDashboard />} />
+        <Route path="/patient" element={<PatientDashboard />} />
+
+        {/* APPOINTMENTS */}
+        <Route path="/my-appointments" element={<MyAppointments />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
